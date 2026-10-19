@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Personality Audit Form</title>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--text:#1c1c1c;--muted:#6b6b6b;--line:#e3e3df;--accent:#1c1c1c;--accent-text:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151515;--card:#1f1f1f;--text:#eee;--muted:#9a9a9a;--line:#333;--accent:#eee;--accent-text:#111}}
+:root[data-theme="dark"]{--bg:#151515;--card:#1f1f1f;--text:#eee;--muted:#9a9a9a;--line:#333;--accent:#eee;--accent-text:#111}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.6rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 20px}
+h2{font-size:1.05rem;margin:28px 0 10px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.q>label,.q>.t{display:block;font-weight:600;margin-bottom:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:5px 0;cursor:pointer}
+.opt input{margin-top:5px;accent-color:var(--accent)}
+input[type=text],input[type=number],textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--text);font:inherit}
+input[type=text]+input[type=text]{margin-top:8px}
+textarea{min-height:90px;resize:vertical}
+button{background:var(--accent);color:var(--accent-text);border:0;border-radius:10px;padding:12px 20px;font:inherit;font-weight:600;cursor:pointer}
+button.alt{background:transparent;color:var(--text);border:1px solid var(--line)}
+.note{color:var(--muted);font-size:.9rem;margin-top:20px}
+.names{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.names button{padding:16px 10px;font-size:1.05rem}
+#out{display:none;margin-top:24px}
+.row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<main>
+<h1>💀 Personality Audit Form</h1>
+<p class="sub">Your feedback matters. His ego doesn’t.</p>
+<div id="pick"><h2>Who are you rating?</h2><div id="names" class="names"></div></div>
+<div id="aura" class="q" style="display:none"><p style="font-weight:600;margin-top:0">⚡ Aura meter overloaded. This person has too much aura, so no one can rate him.</p><button class="alt" type="button" id="aback">← Back</button></div>
+<div id="formwrap" style="display:none">
+<p><b>Subject:</b> <span id="subject"></span> <button class="alt" type="button" id="change" style="padding:4px 10px;font-size:.85rem;margin-left:6px">Change</button></p>
+<p class="sub">Please answer honestly. Your identity may or may not be safe.</p>
+
+<form id="f">
+<div class="q"><label for="who">Your name (optional)</label><input type="text" id="who" placeholder="Or stay anonymous"></div>
+<div id="qs"></div>
+<button type="submit">Submit</button>
+</form>
+
+<div id="out">
+<h2>Submitted ✓</h2>
+<p class="sub">Your answers have been recorded. Thanks!</p>
+<div class="row"><button id="again" type="button">Rate someone else</button></div>
+</div>
+<p class="note">Disclaimer: This feedback may be used against him during future arguments. All ratings are final until he starts defending himself. 💀</p>
+</div>
+</main>
+
+<script>
+var SUBJECT="";
+var S=[
+["🕶️ Section 1: The Swag Department",[
+["r","How would you rate his swag?",["Main character energy","Decent, bro has potential","Confidence is high, results are pending","Bro thinks he’s the premium version","Swag.exe has stopped working"]],
+["r","How much attitude does he carry?",["Just the right amount","More attitude than achievements","Enough to supply the entire neighbourhood","Someone needs to restart his personality"]],
+["r","How attractive is his overall vibe?",["10/10, unfortunately","7/10 on a good day","Depends on the lighting and mood","Personality update required","I’d rather not comment. For legal reasons."]]]],
+["🧠 Section 2: Behaviour & Personality",[
+["r","How would you rate his behaviour?",["Green flag 🌱","Mostly harmless","Red flag with good marketing","Walking talking headache","Needs a software update"]],
+["t","What is his most annoying habit?"],
+["t","What is his biggest red flag? 🚩"],
+["r","How often does he act like he’s always right?",["Never","Sometimes","Every business day","Even Google asks him for sources"]],
+["r","If his personality were an app, what would its review be?",["5 stars ⭐⭐⭐⭐⭐","3 stars, decent features","1 star, too many bugs","Uninstalling immediately"]]]],
+["💚 Section 3: The Good Stuff (yes, there is some)",[
+["t","What are his best qualities?"],
+["t","What’s one thing you genuinely like about him?"],
+["t","What makes him a good friend?"],
+["r","Does he have a heart beneath all that drama?",["Yes, surprisingly","Occasionally visible","Still searching for it","Classified information"]]]],
+["🔧 Section 4: Bug Report & Improvements",[
+["3","What are his top three flaws?"],
+["t","If you could change ONE thing about him, what would it be?"],
+["r","What improvement does he desperately need?",["Less attitude","More common sense","Better communication","Emotional maturity","A reality check","Nothing. He’s already a limited-edition problem."]],
+["t","Any suggestions for his next personality update?"]]],
+["🤝 Section 5: Friendship Eligibility Test",[
+["r","Would you recommend him to other people as a friend?",["Absolutely. He’s a legend.","Yes, but read the terms and conditions.","Only to people with unlimited patience.","Maybe, if he comes with a user manual.","No. I respect other people’s peace.","I’d recommend him to my enemies."]],
+["r","Would you trust him with your secrets?",["100% trustworthy","Depends on the secret","Only if the secret is already public","Absolutely not 💀"]],
+["r","How likely are you to remain friends with him for the next five years?",["Definitely","Probably","Let’s see how the next software update goes","Ask me again after therapy"]],
+["r","Final verdict: What is he to you?",["A genuinely amazing person","A good friend with minor bugs","A walking meme","A headache I somehow tolerate","A character development project","An experience I wouldn’t recommend twice"]]]],
+["📝 Final Comments",[
+["a","Anything else you’d like to say about him? Roast him, appreciate him, expose his habits, or leave a brutally honest review."],
+["n","Give him an overall rating out of 10"]]]
+];
+var qs=document.getElementById("qs"),n=0,labels=[];
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+S.forEach(function(sec){
+  var h="<h2>"+esc(sec[0])+"</h2>";
+  sec[1].forEach(function(q){
+    n++;var id="q"+n,type=q[0],lab=n+". "+q[1];labels.push([id,lab,type]);
+    h+='<div class="q">';
+    if(type==="r"){
+      h+='<div class="t">'+esc(lab)+'</div>';
+      q[2].forEach(function(o){h+='<label class="opt"><input type="radio" name="'+id+'" value="'+esc(o)+'"><span>'+esc(o)+'</span></label>'});
+    }else if(type==="t"){h+='<label for="'+id+'">'+esc(lab)+'</label><input type="text" id="'+id+'">';}
+    else if(type==="3"){h+='<div class="t">'+esc(lab)+'</div><input type="text" name="'+id+'" placeholder="1"><input type="text" name="'+id+'" placeholder="2"><input type="text" name="'+id+'" placeholder="3">';}
+    else if(type==="a"){h+='<label for="'+id+'">'+esc(lab)+'</label><textarea id="'+id+'"></textarea>';}
+    else if(type==="n"){h+='<label for="'+id+'">'+esc(lab)+' (0–10)</label><input type="number" id="'+id+'" min="0" max="10" step="0.5" style="max-width:120px">';}
+    h+='</div>';
+  });
+  qs.insertAdjacentHTML("beforeend",h);
+});
+var NAMES=["Saadain","Amreet","Piyush","Samm","Prasad","Om","Harshad","Priyanshu"];
+var pick=document.getElementById("pick"),aura=document.getElementById("aura"),fw=document.getElementById("formwrap");
+NAMES.forEach(function(nm){var b=document.createElement("button");b.type="button";b.className="alt";b.textContent=nm;b.onclick=function(){choose(nm)};document.getElementById("names").appendChild(b)});
+function choose(nm){pick.style.display="none";
+ if(nm==="Samm"){aura.style.display="block";return}
+ SUBJECT=nm;document.getElementById("subject").textContent=nm;f.reset();out.style.display="none";f.style.display="block";fw.style.display="block";window.scrollTo(0,0)}
+function home(){aura.style.display="none";fw.style.display="none";pick.style.display="block"}
+document.getElementById("aback").onclick=home;document.getElementById("change").onclick=home;
+var f=document.getElementById("f"),out=document.getElementById("out");
+f.addEventListener("submit",function(e){
+  e.preventDefault();
+  var ans=[];
+  labels.forEach(function(l){
+    var id=l[0],v="";
+    if(l[2]==="r"){var c=f.querySelector('input[name="'+id+'"]:checked');v=c?c.value:"";}
+    else if(l[2]==="3"){v=Array.prototype.map.call(f.querySelectorAll('input[name="'+id+'"]'),function(i,k){return i.value.trim()?(k+1)+") "+i.value.trim():""}).filter(Boolean).join("  ");}
+    else{v=document.getElementById(id).value.trim();}
+    ans.push(v);
+  });
+  var btn=f.querySelector('button[type=submit]');btn.disabled=true;btn.textContent="Submitting…";
+  function reset(){btn.disabled=false;btn.textContent="Submit"}
+  google.script.run
+    .withSuccessHandler(function(){reset();f.style.display="none";out.style.display="block";window.scrollTo(0,0)})
+    .withFailureHandler(function(){reset();alert("Could not submit. Please try again.")})
+    .saveResponse({subject:SUBJECT,who:document.getElementById("who").value.trim()||"Anonymous",answers:ans});
+});
+document.getElementById("again").onclick=home;
+</script>
+</body>
+</html>
